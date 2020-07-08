@@ -1,0 +1,60 @@
+#define F_CPU 1000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+
+
+int main()
+{
+		uint8_t width;
+		unsigned int POT = 0;
+		unsigned int BAJO;
+		unsigned int ALTO;
+
+		
+		DDRB |= (1<<PB1) | (1<< PB2);
+	
+		DDRB &= ~(1<<PB3);
+		
+		ADMUX =
+		(0<<REFS1)|(0<<REFS0)|
+		(0<<ADLAR)|
+		(0<<MUX3)|(0<<MUX2)|(1<<MUX1)|(1<<MUX0);
+		
+		
+		ADCSRA =
+		(1<<ADEN)|
+		(0<<ADSC)|
+		(0<<ADATE)|
+		(0<<ADIF)|
+		(0<<ADIE)|
+		(0<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+		
+		ADCSRB =
+		(0<<ADTS2)|
+		(0<<ADTS1)|
+		(0<<ADTS0);
+
+		TCCR0A = (0<< COM0A1) | (0<< COM0A0) |
+		(1<< COM0B1) | (0<< COM0B0) |
+		(1<< WGM01) | (1<< WGM00);
+	
+		TCCR0B = (0<< WGM02) |
+		(0<<CS02) | (0<<CS01) | (1<<CS00);
+	
+	
+	while(1)
+	{
+		ADCSRA |= (1<<ADSC);
+		while (ADCSRA & (1<<ADSC) );
+		
+		BAJO = ADCL;
+		ALTO = ((unsigned int)(ADCH << 8));
+		POT = BAJO | ALTO;
+		width = POT;
+		
+		OCR0B = width;
+		_delay_ms(500);
+		
+	}
+	
+}
